@@ -1,15 +1,8 @@
 #!/bin/sh
 # 使用说明
 # 1. 额外创建一个文件夹，专门用来打包
-# 2. 将脚本和打包配置文件放在此文件夹
+# 2. 将
 # 3. 脚本和工程目录放在同一级，
-
-# 目录结构
-#---用来打包的文件件-------------
-#         |-----打包脚本
-#         |-----导出配置的plist文件
-#         |-----工程文件夹
-
 
 read -p "请输入打包的类型 1.App Store 2.Adhoc 3.exit > " archiveType
 
@@ -22,8 +15,8 @@ if [[ $archiveType -gt 3 || $archiveType -lt 1 ]]; then
 	exit 0
 fi
 
-# 工程路径(必须是绝对路径)
-PROJECt_PATH=""
+# 工程路径
+PROJECt_PATH=./PegasusIPad
 # 要打包的分支名
 BRANCH_NAME="dev_0.4.5_assume"
 # 工程名字
@@ -33,9 +26,9 @@ WORKSPACENAME="${SCHEME_NAME}.xcworkspace"
 # 包类型 Release Debug
 CONFIGURATION="Release"
 # 导出包 需要的plist路径
-EXPORTOPTIONSPLIST="$PROJECt_PATH/AdhocExportOptions.plist"
+EXPORTOPTIONSPLIST="AdhocExportOptions.plist"
 if [[ $archiveType -eq 1 ]]; then
-	EXPORTOPTIONSPLIST="$/PROJECt_PATH/AppstoreExportOptions.plist"
+	EXPORTOPTIONSPLIST="AppstoreExportOptions.plist"
 fi
 # 编译号
 BUILD_ID="10"
@@ -61,7 +54,7 @@ applePassword="*******"
 ARCHIVE_TIME=`(date "+%Y_%m_%d_%H_%M_%S")`
 
 # 归档路径
-ARCHIVE_PATH="$PROJECt_PATH/ArchivePakages/$ARCHIVE_TIME"
+ARCHIVE_PATH="ArchivePakages/$ARCHIVE_TIME"
 if [[ ! -d $ARCHIVE_PATH ]]; then
 	mkdir -p $ARCHIVE_PATH
 fi
@@ -72,15 +65,12 @@ IPA_FILE_PATH="$ARCHIVE_PATH/$SCHEME_NAME.ipa"
 
 
 # 进入工程目录
-cd $PROJECt_PATH/$SCHEME_NAME
-git checkout .
+cd $PROJECt_PATH
 
 # 项目 Info.plist文件的路径
-PROJECT_INFO_PLIST_PATH="$PROJECt_PATH/PegasusIPad/PegasusIPad/NewClasses/Main/Info.plist"
+PROJECT_INFO_PLIST_PATH="PegasusIPad/NewClasses/Main/Info.plist"
 # 修改 buildNumber 
-/usr/libexec/PlistBuddy -c "Set :CFBundleVersion ${BUILD_NUMBER}" ${PROJECT_INFO_PLIST_PATH}
-# 设置版本号
-/usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString ${BUILD_VERSION}" ${PROJECT_INFO_PLIST_PATH}
+/usr/libexec/PlistBuddy -c "Set :CFBundleVersion ${BUILD_ID}" ${PROJECT_INFO_PLIST_PATH}
 
 # 当前分支名
 CURRENT_BRANCH_NAME=`git symbolic-ref --short -q HEAD`
@@ -123,7 +113,7 @@ archivieApp() {
 					   			PROVISIONING_PROFILE_SPECIFIER="$provisioning_profile" \
 					   			-quiet
 
-	ls $ARCHIVE_PATH | grep "$schemeName.xcarchive"
+	ls $ARCHIVE_PATH | grep "$ARCHIVE_FILE_PATH"
 
 	if [ $? != 0  ]; then
 		echo "****** ************** *******"
@@ -149,6 +139,8 @@ archivieApp() {
 	    echo "****** ************** *******"
 		exit 2 
 	fi
+
+	return 0
 }
 
 
@@ -173,8 +165,19 @@ uploadToAppStore() {
 	altool='/Applications/Xcode.app/Contents/Applications/Application\ Loader.app/Contents/Frameworks/ITunesSoftwareService.framework/Versions/A/Support/altool'
 	
 	altool --validate-app -f $IPA_FILE_PATH -t ios -u $appleId -p $applePassword
+	if [[ $? != 0 ]]; then
+		echo " ****************验证签名包失败*******************"
+		exit 1
+	fi
+
 
 	altool --upload-app -f $IPA_FILE_PATH -t ios -u $appleId -p $applePassword
+	if [[ $? != 0 ]]; then
+		echo "****************上传App Store失败*******************"
+		exit 1
+	fi
+	echo "================上传App Store成功=================="
+	exit 0
 }
 
 
@@ -182,11 +185,10 @@ uploadToAppStore() {
 
 archivieApp
 
-if [[ $archiveType == 1 ]]; then
+if [[ $archiveType -eq 1 ]]; then
 	uploadToAppStore
-elif [[ $archiveType == 2 ]]; then
+elif [[ $archiveType -eq 2 ]]; then
 	uploadToPGY
 fi
 
 exit 0
-
