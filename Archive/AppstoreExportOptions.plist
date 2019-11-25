@@ -5,13 +5,13 @@
 	<key>compileBitcode</key>
 	<false/>
 	<key>destination</key>
-	<string>export</string>
+	<string>upload</string>
 	<key>method</key>
-	<string>ad-hoc</string>
+	<string>app-store</string>
 	<key>provisioningProfiles</key>
 	<dict>
-		<key>com.xxx.xxxx</key>
-		<string>描述文件名字</string>
+		<key>bundleID</key>
+		<string>BundleI对应的描述文件</string>
 	</dict>
 	<key>signingCertificate</key>
 	<string>iPhone Distribution</string>
@@ -20,8 +20,10 @@
 	<key>stripSwiftSymbols</key>
 	<true/>
 	<key>teamID</key>
-	<string>账号的teamID</string>
+	<string>teamID</string>
 	<key>thinning</key>
 	<string>&lt;none&gt;</string>
+	<key>uploadSymbols</key>
+	<true/>
 </dict>
 </plist>
