@@ -1,3 +1,5 @@
+[TOC]
+
 ###Mac OS 下的Jenkins环境搭建
 
 1. 安装 [Java JDK](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html) (version:8.0)
@@ -121,4 +123,17 @@
 
 
 ### Jenkins的一些配置
+
+##### 配置全局的环境变量
+1. 打开Jenkins系统设置面板
+2. 全局属性添加键值对
+
+##### `Markup Formatter`标记格式器 改为 `Safe HTML`
+
+1. 安装 `OWASP Markup Formatter Plugin`插件
+2. 打开 `Configure Global Security`全局安全配置
+3. `Markup Formatter`标记格式器进行更改
+
+##### `Jenkins-cli` 相关配置
+
 
